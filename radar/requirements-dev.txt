@@ -1,0 +1,3 @@
+pytest>=8.0
+
+# The worker itself needs nothing beyond the Python 3.11+ standard library.

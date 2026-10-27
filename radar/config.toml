@@ -1,0 +1,165 @@
+#
+# Job radar configuration - tuned for a Flutter / mobile engineer.
+#
+# Change this file, then check your rules with:
+#   python -m jobradar explain
+#   python -m jobradar run --dry-run
+#
+
+[match]
+# true = the job title itself must contain an include keyword (fewer, sharper
+# hits). false = a strong body match can also qualify.
+require_include_in_title = false
+# Scoring: a title keyword is 4 points, a distinctive body keyword 3, a generic
+# body keyword 1. At 4: a title match passes, two distinctive body mentions
+# pass, and a generic "we also have an Android app" does not. Lower to 3 for a
+# wider net, raise to 8 to only see jobs that are unmistakably yours.
+min_score = 4
+# Ignore postings older than this. 0 disables the age check.
+max_age_days = 21
+
+[include]
+# Highest-value signals: these appear in the job title.
+title_any = [
+  "flutter",
+  "dart",
+  "mobile engineer",
+  "mobile developer",
+  "mobile software engineer",
+  "mobile application developer",
+  "app developer",
+  "android engineer",
+  "android developer",
+  "ios engineer",
+  "ios developer",
+  "react native",
+  "cross platform",
+  "cross-platform",
+]
+# Distinctive signals (3 points): if a description says these, the role really
+# is mobile work. Two of them are enough to qualify on their own.
+anywhere_strong = [
+  "flutter",
+  "dart",
+  "react native",
+  "jetpack compose",
+  "swiftui",
+  "riverpod",
+  "mobile app development",
+  "cross-platform mobile",
+]
+# Generic signals (1 point): true of plenty of jobs that are not for you, so
+# these only ever nudge the score.
+anywhere_any = [
+  "mobile app",
+  "android",
+  "ios",
+  "kotlin",
+  "swift",
+  "firebase",
+  "bloc",
+  "play store",
+  "app store",
+  "mobile developer",
+  "mobile engineer",
+]
+
+[exclude]
+# In the TITLE only. "Java backend" in a description is normal for a mobile
+# role; in the title it means the job is not for you.
+title_any = [
+  "intern",
+  "internship",
+  "apprentice",
+  "director",
+  "head of",
+  "vp of",
+  "vice president",
+  "chief",
+  "engineering manager",      # delete if you want management tracks too
+  "recruiter",
+  "sales",
+  "account executive",
+  "marketing",
+  "data entry",
+  "java backend",
+  "backend engineer",
+  "data engineer",
+  "devops engineer",
+  "game developer",
+  "unity developer",
+  "wordpress",
+]
+# ANYWHERE in the posting. Keep this list short and unambiguous - a phrase here
+# rejects the whole job.
+anywhere_any = [
+  "unpaid",
+  "volunteer position",
+  "commission only",
+  "equity only",
+  # Geography gates. Delete any that you can actually satisfy.
+  "us citizens only",
+  "must be a us citizen",
+  "must reside in the united states",
+  "us residents only",
+]
+
+[notify]
+# Cap on push messages per run; the rest are queued for the next run so a
+# first run against a full board does not fire 200 notifications.
+max_per_run = 12
+# Also print every pushed job to stdout (handy in CI logs).
+console = false
+
+[notify.telegram]
+enabled = true
+pause_seconds = 1.1   # stay under Telegram's per-chat rate limit
+
+[storage]
+database = "data/radar.db"
+export_json = "data/latest.json"   # what the Flutter app can read
+export_limit = 300
+prune_after_days = 120
+
+# ---------------------------------------------------------------------------
+# Sources. Everything below is optional - enable what you want.
+# ---------------------------------------------------------------------------
+
+[sources.remoteok]
+enabled = true
+
+[sources.remotive]
+# Their free API hard-caps the response at 10 jobs (newest first), whatever you
+# pass - low volume, but free and fresh, so worth keeping in the rotation.
+enabled = true
+category = "software-dev"
+limit = 200
+
+[sources.arbeitnow]
+enabled = true
+pages = 2
+remote_only = false
+
+[[sources.rss]]
+name = "weworkremotely-programming"
+url = "https://weworkremotely.com/categories/remote-programming-jobs.rss"
+# WWR puts the company in the title: "Acme Inc: Senior Flutter Engineer".
+title_format = "company: title"
+enabled = true
+
+[[sources.rss]]
+name = "workingnomads-development"
+url = "https://www.workingnomads.com/jobsrss/"
+enabled = false   # verify the feed URL in a browser first, then enable
+
+# Dream companies. Find the token in their careers page URL:
+#   boards.greenhouse.io/<board>       -> board = "<board>"
+#   jobs.lever.co/<company>            -> company = "<company>"
+[[sources.greenhouse]]
+board = "example"
+company = "Example Inc"
+enabled = false
+
+[[sources.lever]]
+company = "example"
+enabled = false
