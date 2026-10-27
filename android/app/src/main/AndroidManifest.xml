@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Needed to fetch the job feed. Flutter's template declares this only in
+         the debug manifest (for hot reload), so a release APK would install
+         fine and then fail every refresh. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:label="myjob"
         android:name="${applicationName}"
@@ -40,6 +45,13 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Required by url_launcher on Android 11+ (API 30). Without it,
+             package visibility hides every browser from the app and the
+             "Open posting" button fails. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
         </intent>
     </queries>
 </manifest>
